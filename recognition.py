@@ -1,10 +1,13 @@
 import tkinter as tk
+import voice_recognition
+import threading
 
 class TimerApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Timer App")
         root.attributes('-fullscreen', True)
+        self.time = 3
         # self.root.geometry("300x100")
 
         self.message = tk.Label(
@@ -34,10 +37,18 @@ class TimerApp:
             
     def run_recognition(self):
         # 音声認識と画像認識
-        print("音声認識と画像認識")
+        self.voice_start()
 
     def start(self):
-        self.update_label(10)
+        self.update_label(self.time)
+
+    def voice_start(self):
+        thread_voice = threading.Thread(target = self.run_voice_recognition)
+        thread_voice.start()
+    
+    def run_voice_recognition(self):
+        v = voice_recognition.VoiceRecognition(3)
+        v.recognition()
 
 if __name__ == "__main__":
     root = tk.Tk()
