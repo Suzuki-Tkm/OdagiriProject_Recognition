@@ -1,6 +1,7 @@
 import tkinter as tk
 import voice_recognition
 import threading
+import picture_recognition
 
 class TimerApp:
     def __init__(self, root):
@@ -32,12 +33,23 @@ class TimerApp:
             self.label.config(text=f"{remaining_time} seconds")
             self.root.after(1000, self.update_label, remaining_time - 1)
         else:
-            self.label.config(text="Timer done!")
+            self.label.config(text="Start!!")
             self.run_recognition()
+
+    def finish_label(self, remaining_time):
+        if remaining_time > 0:
+            self.message.config(text=f"ご不明な点はスタッフまでお問合せください")
+            self.label.config(text="finish!!")
+            print(remaining_time)
+            self.root.after(1000, self.finish_label, remaining_time - 1)
+        else:
+            self.root.destroy()
             
     def run_recognition(self):
         # 音声認識と画像認識
         self.voice_start()
+        picture_recognition.PictureRecognition(self.root)
+        self.finish_label(5)
 
     def start(self):
         self.update_label(self.time)
@@ -47,8 +59,7 @@ class TimerApp:
         thread_voice.start()
     
     def run_voice_recognition(self):
-        v = voice_recognition.VoiceRecognition(3)
-        v.recognition()
+        voice_recognition.VoiceRecognition(3).recognition()
 
 if __name__ == "__main__":
     root = tk.Tk()
