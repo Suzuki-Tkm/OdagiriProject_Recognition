@@ -39,5 +39,5 @@ class VoiceRecognition:
         p.terminate()
 
 if __name__ == "__main__": 
-    v = VoiceRecognition()
+    v = VoiceRecognition(10)
     v.recognition()
