@@ -7,6 +7,7 @@ import time
 import requests
 import voice_recognition
 import threading
+import re
 
 class PictureRecognition:
     def __init__(self, root):
@@ -30,7 +31,10 @@ class PictureRecognition:
         self.task()
     
     def task(self):
-        self.id = input()
+        self.id = re.search(r'\d+', input())
+        if self.id:
+            self.id = self.id.group()
+        print(str(self.id) + "への送信を開始します.......")
         self.dark_overlay = None
         self.time = time.time()
         thread1 = threading.Thread(target=self.voice_task)
@@ -75,14 +79,15 @@ class PictureRecognition:
             self.root.after(10, self.process_frame)
         else:
                 self.create_dark_overlay()
-                if self.id.isdigit():
-                    url = "http://127.0.0.1:3000/users/" + self.id + "/updatePronpt"
-                    data = {"image_recognition": self.closest_color , "voice_recognition_brightness": self.voice.amplitude , "voice_recognition_weather": self.voice.dominant_frequency}
-                    response = requests.patch(url, data=data)
-                    if response.status_code == 200:
-                        print('Update successful')
-                    else:
-                        print('Update failed')
+                if not self.id is None:
+                    if self.id.isdigit():
+                        url = "http://127.0.0.1:3000/users/" + self.id + "/updatePronpt"
+                        data = {"image_recognition": self.closest_color , "voice_recognition_brightness": self.voice.amplitude , "voice_recognition_weather": self.voice.dominant_frequency}
+                        response = requests.patch(url, data=data)
+                        if response.status_code == 200:
+                            print('Update successful')
+                        else:
+                            print('Update failed')
                 
 
     def create_dark_overlay(self):
