@@ -11,6 +11,7 @@ import re
 import base64
 import hashlib
 from Crypto.Cipher import AES
+from requests.auth import HTTPBasicAuth
 
 class PictureRecognition:
     def __init__(self, root):
@@ -97,7 +98,7 @@ class PictureRecognition:
                     if self.id.isdigit():
                         url = "http://127.0.0.1:3000/users/" + self.id + "/updatePronpt"
                         data = {"image_recognition": self.closest_color , "voice_recognition_brightness": self.voice.amplitude , "voice_recognition_weather": self.voice.dominant_frequency}
-                        response = requests.patch(url, data=data)
+                        response = requests.patch(url, auth=HTTPBasicAuth("user", "pass"), data=data)
                         if response.status_code == 200:
                             print('Update successful')
                         else:
