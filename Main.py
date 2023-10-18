@@ -8,6 +8,9 @@ import requests
 import voice_recognition
 import threading
 import re
+import base64
+import hashlib
+from Crypto.Cipher import AES
 
 class PictureRecognition:
     def __init__(self, root):
@@ -31,9 +34,20 @@ class PictureRecognition:
         self.task()
     
     def task(self):
-        self.id = re.search(r'\d+', input())
-        if self.id:
-            self.id = self.id.group()
+        key = b'Enter your key here'
+        QR_input = input().strip()
+        iv = QR_input[:24]
+        print (iv)
+        crypted = QR_input[24:]
+        print (crypted)
+        self.id = 1
+        key_dg = hashlib.sha256(key).digest()
+        cipher = AES.new(key_dg, AES.MODE_CBC, base64.b64decode(iv))
+        crypted = base64.b64decode(crypted)
+        prompt = cipher.decrypt(crypted)
+        prompt = prompt.rstrip(b'\0')
+        prompt = prompt.decode("utf-8")
+        self.id = prompt.split(",")[0][1:]
         print(str(self.id) + "への送信を開始します.......")
         self.dark_overlay = None
         self.time = time.time()
