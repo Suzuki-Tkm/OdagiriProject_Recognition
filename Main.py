@@ -96,7 +96,7 @@ class PictureRecognition:
                 self.create_dark_overlay()
                 if not self.id is None:
                     if self.id.isdigit():
-                        url = "http://127.0.0.1:3000/users/" + self.id + "/updatePronpt"
+                        url = "http://odpj2023.f5.si/users/" + self.id + "/updatePronpt"
                         data = {"image_recognition": self.closest_color , "voice_recognition_brightness": self.voice.amplitude , "voice_recognition_weather": self.voice.dominant_frequency}
                         response = requests.patch(url, auth=HTTPBasicAuth("user", "pass"), data=data)
                         if response.status_code == 200:
