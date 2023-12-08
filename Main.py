@@ -36,28 +36,32 @@ class PictureRecognition:
         self.task()
     
     def task(self):
-        key = b'Enter your key here'
-        QR_input = input().strip()
-        iv = QR_input[:24]
-        print (iv)
-        crypted = QR_input[24:]
-        print (crypted)
-        self.id = 1
-        key_dg = hashlib.sha256(key).digest()
-        cipher = AES.new(key_dg, AES.MODE_CBC, base64.b64decode(iv))
-        crypted = base64.b64decode(crypted)
-        prompt = cipher.decrypt(crypted)
-        prompt = prompt.rstrip(b'\0')
-        prompt = prompt.decode("utf-8")
-        self.id = prompt.split(",")[0][1:]
-        print(str(self.id) + "への送信を開始します.......")
-        self.dark_overlay = None
-        self.time = time.time()
-        thread1 = threading.Thread(target=self.voice_task)
-        thread1.start()
-        self.process_frame()
-        self.closest_color = None
-        self.task()
+        while True:
+            try:
+                key = b'Enter your key here'
+                QR_input = input().strip()
+                iv = QR_input[:24]
+                print (iv)
+                crypted = QR_input[24:]
+                print (crypted)
+                self.id = 1
+                key_dg = hashlib.sha256(key).digest()
+                cipher = AES.new(key_dg, AES.MODE_CBC, base64.b64decode(iv))
+                crypted = base64.b64decode(crypted)
+                prompt = cipher.decrypt(crypted)
+                prompt = prompt.rstrip(b'\0')
+                prompt = prompt.decode("utf-8")
+                self.id = prompt.split(",")[0][1:]
+                print(str(self.id) + "への送信を開始します.......")
+                self.dark_overlay = None
+                self.time = time.time()
+                thread1 = threading.Thread(target=self.voice_task)
+                thread1.start()
+                self.process_frame()
+                self.closest_color = None
+                self.task()
+            except:
+                print("error")
 
     def voice_task(self):
         self.voice = voice_recognition.VoiceRecognition(7)
@@ -98,7 +102,8 @@ class PictureRecognition:
                 if not self.id is None:
                     if self.id.isdigit():
                         print(self.closest_color)
-                        gptPronpt = openAI.generate_associated_words(self.closest_color)
+                        gptPronpt = None
+                        # gptPronpt = openAI.generate_associated_words(self.closest_color)
                         # url = "http://odpj2023.f5.si/users/" + self.id + "/updatePronpt"
                         url = "http://localhost:3000/users/" + self.id + "/updatePronpt"
                         data = {"image_recognition": gptPronpt , "voice_recognition_brightness": self.voice.amplitude , "voice_recognition_weather": self.voice.dominant_frequency}
