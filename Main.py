@@ -10,6 +10,7 @@ import threading
 import re
 import base64
 import hashlib
+import openAI
 from Crypto.Cipher import AES
 from requests.auth import HTTPBasicAuth
 
@@ -96,8 +97,11 @@ class PictureRecognition:
                 self.create_dark_overlay()
                 if not self.id is None:
                     if self.id.isdigit():
-                        url = "http://odpj2023.f5.si/users/" + self.id + "/updatePronpt"
-                        data = {"image_recognition": self.closest_color , "voice_recognition_brightness": self.voice.amplitude , "voice_recognition_weather": self.voice.dominant_frequency}
+                        print(self.closest_color)
+                        gptPronpt = openAI.generate_associated_words(self.closest_color)
+                        # url = "http://odpj2023.f5.si/users/" + self.id + "/updatePronpt"
+                        url = "http://localhost:3000/users/" + self.id + "/updatePronpt"
+                        data = {"image_recognition": gptPronpt , "voice_recognition_brightness": self.voice.amplitude , "voice_recognition_weather": self.voice.dominant_frequency}
                         response = requests.patch(url, auth=HTTPBasicAuth("user", "pass"), data=data)
                         if response.status_code == 200:
                             print('Update successful')
