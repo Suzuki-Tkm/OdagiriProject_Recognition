@@ -1,6 +1,7 @@
 import socket
 import pygame
 import random
+import threading
 
 song_paths = {
     "song1": "./music/K.O..mp3",
@@ -31,13 +32,16 @@ def play_music(song_name):
 
 def input_handler():
     while True:
-        pronpt = client_socket.recv(1024).decode('utf-8')
-        data = selectmusic(pronpt)
+        try:
+            pronpt = client_socket.recv(1024).decode('utf-8')
+            data = selectmusic(pronpt)
 
-        if data in song_paths or data == "usually_song":
-            play_music(data)
-        else:
-            print("無効な曲名です。")
+            if data in song_paths or data == "usually_song":
+                play_music(data)
+            else:
+                print("無効な曲名です。")
+        except:
+            print("")
 
 def selectmusic(data):
     if not data.split(",")[0].isdigit():
@@ -65,24 +69,26 @@ def selectmusic(data):
 host = socket.gethostname()
 ip = socket.gethostbyname(host)
 
-server_ip = ip
-server_port = 49161
-print("ip:", ip)
-server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_socket.bind((server_ip, server_port))
-server_socket.listen(1)
-print(f"サーバーが{server_ip}:{server_port}で起動しました。")
-client_socket, client_address = server_socket.accept()
-print(f"クライアント {client_address} が接続しました。")
+def client(client_socket):
+    pygame.init()
+    pygame.mixer.init()
+    try:
+        input_handler()
+    finally:
+        pygame.mixer.music.stop()
+        pygame.quit()
+    client_socket.close()
 
-pygame.init()
-pygame.mixer.init()
-
-try:
-    input_handler()
-finally:
-    pygame.mixer.music.stop()
-    pygame.quit()
-
-client_socket.close()
-server_socket.close()
+if __name__ == "__main__":
+    server_ip = ip
+    server_port = 49162
+    print("ip:", ip)
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.bind((server_ip, server_port))
+    server_socket.listen(1)
+    print(f"サーバーが{server_ip}:{server_port}で起動しました。")
+    while True:
+        client_socket, client_address = server_socket.accept()
+        print(f"クライアント {client_address} が接続しました。")
+        thread1 = threading.Thread(target=client, args=(client_socket,))
+        thread1.start()
